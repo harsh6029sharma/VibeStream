@@ -1,5 +1,4 @@
 import { v2 as cloudinary } from 'cloudinary'
-import { response } from 'express';
 import fs from 'fs'
 
 cloudinary.config({
@@ -12,18 +11,26 @@ const uploadOnCloudinary = async (localFilePath) => {
     try {
         // if localfile path does not exist then return null
         if (!localFilePath) return null
+
+
         // if exist then upload on cloudinary
-        cloudinary.uploader.upload(localFilePath, {
+        const response = await cloudinary.uploader.upload(localFilePath, {
             resource_type: 'auto'
         })
+
         // file uploaded on cloudinary successfully
         console.log("file uploaded on successfully : ",response.url)
-        fs.unlinkSync(localFilePath)
+
+        if(fs.existsSync(localFilePath)){
+            fs.unlinkSync(localFilePath)
+        }
         return response
 
     } catch (error) {
         // as the operatiojn got failed 
-        fs.unlinkSync(localFilePath)
+        if(fs.existsSync(localFilePath)){
+            fs.unlinkSync(localFilePath)
+        }
         return null
     }
 }
